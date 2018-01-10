@@ -1,0 +1,132 @@
+<!DOCTYPE HTML>
+<html>
+
+	<head>
+		
+		<meta charset="UTF-8">
+	
+		<link rel='stylesheet' type='text/css' href='static/style.css' />
+		 <link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet"> 
+
+		<meta name="viewport" content ="width=device-width,initial-scale=1,user-scalable=yes"/>
+
+		<title>Welcome!</title>
+		
+		<script type="text/javascript">
+  			var Module = {
+      				onRuntimeInitialized: function() {
+            				Module._resize(canvas.width , canvas.height);  
+					gameLoop();
+				}
+    			};
+		</script>
+
+		
+		{{{ SCRIPT }}}
+	
+		<script type='text/javascript' src='./other.js'></script>
+	</head>
+
+	<body>
+
+		<canvas id='game_canvas' align='center'>Canvas is not supported</canvas>
+
+		<div id='high_scores' align='left'>
+
+			<h3>HIGHSCORE: 0</h3>
+			<h3>SCORE: 0</h3>
+
+		</div>
+
+
+		<div id='header_bar' align='center'>
+			
+			<img src='static/photo.jpg' border='5' height='15%' width='15%'>
+				
+			<h4>Chris Wood</h4>
+
+			<h4>About Me</h4>
+			<h4> <a href='static/ChrisResume.pdf'>Resume</a>  </h4>
+			<h4> <a href='https://github.com/crw5996'>Projects</a> </h4>
+
+		</div>
+
+		<script>
+			var images = [];		
+			
+			const colors = ['#ff0000' , '#00ff00' , '#0000ff' , '#fff835' , '#35fff4'];
+			const canvas = document.getElementById('game_canvas');
+			const context = canvas.getContext('2d');
+			
+			canvas.autofocus;
+
+			context.canvas.width = window.innerWidth; 
+			context.canvas.height = window.innerHeight;
+
+			function resize() {
+			
+				canvas.width = window.innerWidth * 0.8; 
+				canvas.height = window.innerHeight * 0.8; 
+			
+				_resize(canvas.width , canvas.height);
+
+				canvas.autofocus;
+
+				context.canvas.width = window.innerWidth; 
+				context.canvas.height = window.innerHeight;
+			}
+
+			function processKey(key , action) {
+			
+				switch(key) {
+				
+					case "ArrowLeft": 
+						_left(action);
+						break; 
+
+					case "ArrowRight": 
+						_right(action);
+						break; 
+
+					case "ArrowUp": 
+						_jump(1);
+						break; 
+				}
+			
+			}
+
+			document.addEventListener("keydown" , e => processKey(e.key , 1)); 
+			document.addEventListener("keyup" , e => processKey(e.key , 0)); 
+
+			window.addEventListener('resize' , () => {resize();});
+ 
+			var previousTime = null;
+			var start = null; 
+
+			var gameLoop = (timestamp) => {
+				
+				if (!previousTime) { 
+					start = timestamp; 
+					previousTime = timestamp; 
+					loadImages();
+					requestAnimationFrame(gameLoop);
+					return;
+				}
+
+				context.clearRect(0,0,canvas.width,canvas.height); 
+
+				var progress = (timestamp - previousTime) / 1000;
+
+				_update(progress); 
+ 
+				previousTime = timestamp
+
+				requestAnimationFrame(gameLoop);
+
+			};
+
+		</script>
+
+	</body>
+
+</html>
