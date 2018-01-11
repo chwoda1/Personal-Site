@@ -1,4 +1,6 @@
 
+var initialize = false; 
+
 function loadImages() {
 	
 	var sprites = new Array(); 	
@@ -31,9 +33,8 @@ function loadImages() {
 	images = sprites;
 }
 
-function initStorage() {
+function scoreUpdating() {
 
 	localStorage.setItem("highScore" , "0"); 
-
 }
 

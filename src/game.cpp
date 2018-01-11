@@ -11,6 +11,8 @@ extern "C" {
 double time_sum = 0.0;
 
 int score = 0; 
+int image_counter = 0; 
+int number_rects = 0; 
 
 int dir_right = 0; 
 int dir_left = 0;  
@@ -21,8 +23,7 @@ int flag = 0;
 int x = 0; 
 int y = 0; 
 
-int spawn_rate = 2; 
-  
+int spawn_rate = 2;  
 int base_speed = 75; 
 
 int canvas_x; 
@@ -32,8 +33,8 @@ int ceiling;
 
 Player player;
 
-Rectangle rectangles[10];
-int number_rects = 0; 
+Rectangle rectangles[15];
+Sprite sprites[16];
 
 extern "C" {
 
@@ -103,27 +104,14 @@ extern "C" {
 			
 				x_position = canvas_x; 
 				direction = 1; 
-			}
-
-			printf("X Position: %i\n" , x_position); 
+			} 
 
 			Rectangle rect = { x_position , height , color_rand , direction , velocity }; 
 			
 			rectangles[number_rects] = rect; 
 			number_rects++; 
-
+		
 		}
-		
-		for (int i = 0 ; i < number_rects ; i++) {
-		
-			if (rectangles[i].x_position > canvas_x) {
-				number_rects--; 
-			}
-
-		}
-
-		qsort(rectangles , number_rects , sizeof(Rectangle) , compare_func);
-		
 	}
 
 	void EMSCRIPTEN_KEEPALIVE resize(int x_param , int y_param) {
@@ -199,11 +187,9 @@ extern "C" {
 
 			} 
 			else {
-			
 				player.y_position = original_y; 
 				falling = 0; 
 				player.sprite_position = 0; 
-
 			}	 
 		}
 	}
@@ -213,6 +199,8 @@ extern "C" {
 		for (int i = 0 ; i < number_rects ; i++) {
 	
 			double movement = time_delta * rectangles[i].velocity; 
+		
+			printf("x Position: %f\n", rectangles[i].x_position); 
 
 			switch (rectangles[i].direction) {
 			
@@ -240,12 +228,86 @@ extern "C" {
 		for (int i = 0 ; i < number_rects ; i++)
 			jsDrawRectangle(rectangles[i].x_position,rectangles[i].height,rectangles[i].rect_color); 
 		
+	
+		// this here is wrong 	
+		for (int i = 0 ; i < number_rects ; i++) {
+		
+			if (rectangles[i].x_position > canvas_x || rectangles[i].x_position < 0) {
+				number_rects--; 
+				score++; 
+			}
+		}
 	}
 
-	void check_collision(Rectangle rect) {  }
+	int EMSCRIPTEN_KEEPALIVE get_score() {
+	
+		return score; 
 
-	void reset() { }
+	}
+
+	void EMSCRIPTEN_KEEPALIVE image_data(int sprite_x , int sprite_y) {
+	
+		sprites[image_counter] = (Sprite) {sprite_x , sprite_y}; 	
+	
+		image_counter++; 
+	
+	}
+
+	void check_collision(int pivot) {  
+		
+		// eliminate half the work 
+
+		if (rectangles[pivot].x_position - 10 > player.x_position) {
+
+			for (int i = 0 ; i < pivot ; i++) {
+			
+				int result = intersects(rectangles[i]);
+
+				if (result == 1)
+					reset(); 
+							
+			}
+
+		}
+
+		else {
+		
+			for (int i = pivot ; i < number_rects ; i++) {
+			
+				int result = intersects(rectangles[i]); 
+			
+				if (result == 1)
+					reset(); 
+
+			}
+		}	
+	}
+
+	void reset() { 
+	
+		double new_x = canvas_x / 2; 
+
+		player = (Player) {new_x , original_y , 0}; 
+
+		number_rects = 0; 
+
+		printf("Resetting Game...\n"); 
+		
+	}
+
+	int intersects(Rectangle rect) {
+	
+		int current_sprite = player.sprite_position; 
+
+		int sprite_W = sprites[current_sprite].width;
+		int sprite_H = sprites[current_sprite].height; 
+
+		return (rect.x_position <= player.x_position + sprite_W && rect.x_position + 60 >= player.x_position) &&
+		       (0 <= player.y_position + sprite_H && rect.height >= player.y_position);	
+
+	}
 
 	int main() { printf("WebAssembly ready and loaded\n"); }
 	
 } 
+// deletion is still a problem 

@@ -6,7 +6,7 @@
 		<meta charset="UTF-8">
 	
 		<link rel='stylesheet' type='text/css' href='static/style.css' />
-		 <link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet"> 
+		<link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet" /> 
 
 		<meta name="viewport" content ="width=device-width,initial-scale=1,user-scalable=yes"/>
 
@@ -42,12 +42,20 @@
 		<div id='header_bar' align='center'>
 			
 			<img src='static/photo.jpg' border='5' height='15%' width='15%'>
-				
-			<h4>Chris Wood</h4>
+			
+			<div id='title' align='center'>	
 
-			<h4>About Me</h4>
-			<h4> <a href='static/ChrisResume.pdf'>Resume</a>  </h4>
-			<h4> <a href='https://github.com/crw5996'>Projects</a> </h4>
+				<h3>Chris Wood</h3>
+
+			</div>
+
+			<div id='personal' align='center'>
+
+				<h4>About Me</h4>
+				<h4> <a href='static/ChrisResume.pdf' style='color:#000000;'>Resume</a>  </h4>
+				<h4> <a href='https://github.com/crw5996' style='color:#000000;'>Projects</a> </h4>
+
+			</div> 
 
 		</div>
 
@@ -69,7 +77,19 @@
 				canvas.height = window.innerHeight * 0.8; 
 			
 				_resize(canvas.width , canvas.height);
+				
+				/* Fix this crap at some point */ 
 
+				for (var i = 0 ; i < images.length; i++) {
+				
+					_image_data(images[i].width , images[i].height); 
+				
+				}
+
+				context.beginPath(); 
+				context.moveTo(0 , 50); 
+				context.lineTo(canvas.width , 50); 
+		
 				canvas.autofocus;
 
 				context.canvas.width = window.innerWidth; 
@@ -97,7 +117,6 @@
 
 			document.addEventListener("keydown" , e => processKey(e.key , 1)); 
 			document.addEventListener("keyup" , e => processKey(e.key , 0)); 
-
 			window.addEventListener('resize' , () => {resize();});
  
 			var previousTime = null;
