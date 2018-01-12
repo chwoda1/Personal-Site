@@ -1,6 +1,6 @@
 const int SPEED = 400; 
 const int FALLING_SPEED = 600; 
-
+const int MAX = 0xFFFF; 
 const int RECT_HEIGHT = 60;
 
 typedef struct Sprite {

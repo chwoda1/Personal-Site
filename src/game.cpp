@@ -1,6 +1,6 @@
 #include <emscripten/emscripten.h>
 #include <stdlib.h> 
-
+#include <math.h> 
 #include "game.h"
  
 extern "C" {
@@ -33,7 +33,7 @@ int ceiling;
 
 Player player;
 
-Rectangle rectangles[15];
+Rectangle rectangles[10];
 Sprite sprites[16];
 
 extern "C" {
@@ -86,6 +86,26 @@ extern "C" {
 		}
 	}
 
+	void EMSCRIPTEN_KEEPALIVE resize(int x_param , int y_param) {
+
+		canvas_x = x_param; 
+		canvas_y = y_param; 
+
+		ceiling = canvas_y / 2;
+
+		printf("Resizing...\n"); 
+
+		if (!flag) {
+			original_y = canvas_y - 50;
+			player = (Player) {canvas_x / 2 , original_y , 0}; 
+			flag = 1; 
+			
+			for (int i = 0 ; i < 10 ; i++)
+				rectangles[i].x_position = MAX; 
+	
+		}
+	}
+
 	void make_rectangles(double time_delta) {	
  
 		time_sum += time_delta; 
@@ -101,7 +121,6 @@ extern "C" {
 			int direction = 0; 
 
 			if (rand() % 2 == 1) {
-			
 				x_position = canvas_x; 
 				direction = 1; 
 			} 
@@ -109,22 +128,17 @@ extern "C" {
 			Rectangle rect = { x_position , height , color_rand , direction , velocity }; 
 			
 			rectangles[number_rects] = rect; 
-			number_rects++; 
-		
-		}
-	}
+			number_rects++;  	
+			 
+			for (int i = 0 ; i < number_rects ; i++) {
+			
+				if (rectangles[i].x_position > canvas_x || rectangles[i].x_position < 0) {
+					rectangles[i].x_position = MAX; 
+					number_rects--; 
+				}
+			}
 
-	void EMSCRIPTEN_KEEPALIVE resize(int x_param , int y_param) {
-
-		canvas_x = x_param; 
-		canvas_y = y_param; 
-
-		ceiling = canvas_y / 2;
-
-		if (!flag) {
-			original_y = canvas_y - 50;
-			player = (Player) {canvas_x / 2 , original_y , 0}; 
-			flag = 1;   
+			qsort(rectangles , 10 , sizeof(Rectangle) , compare_func);
 		}
 	}
 
@@ -141,10 +155,8 @@ extern "C" {
 		}
 
 		else if (dir_left == 1) {
-		
 			player.x_position -= movement;
 			player.sprite_position = (y++ % 7 + 1); 
- 
 		}
 		
 		if (dir_jumping == 1) {
@@ -163,7 +175,6 @@ extern "C" {
 			}
 
 			else {
-			
 				player.y_position = ceiling; 
 				falling = 1; 
 				dir_jumping = 0; 
@@ -199,9 +210,7 @@ extern "C" {
 		for (int i = 0 ; i < number_rects ; i++) {
 	
 			double movement = time_delta * rectangles[i].velocity; 
-		
-			printf("x Position: %f\n", rectangles[i].x_position); 
-
+		 
 			switch (rectangles[i].direction) {
 			
 				case 0: 
@@ -225,89 +234,24 @@ extern "C" {
 
 		jsDrawImage(player.x_position , player.y_position , player.sprite_position); 
 	
-		for (int i = 0 ; i < number_rects ; i++)
+		for (int i = 0 ; i < 10 ; i++)
 			jsDrawRectangle(rectangles[i].x_position,rectangles[i].height,rectangles[i].rect_color); 
-		
-	
-		// this here is wrong 	
-		for (int i = 0 ; i < number_rects ; i++) {
-		
-			if (rectangles[i].x_position > canvas_x || rectangles[i].x_position < 0) {
-				number_rects--; 
-				score++; 
-			}
-		}
+		 	 
 	}
 
-	int EMSCRIPTEN_KEEPALIVE get_score() {
-	
-		return score; 
-
-	}
+	int EMSCRIPTEN_KEEPALIVE get_score() { return score; }
 
 	void EMSCRIPTEN_KEEPALIVE image_data(int sprite_x , int sprite_y) {
-	
 		sprites[image_counter] = (Sprite) {sprite_x , sprite_y}; 	
-	
 		image_counter++; 
-	
 	}
 
-	void check_collision(int pivot) {  
-		
-		// eliminate half the work 
+	void check_collision(int pivot) { }
 
-		if (rectangles[pivot].x_position - 10 > player.x_position) {
+	void reset() { }
 
-			for (int i = 0 ; i < pivot ; i++) {
-			
-				int result = intersects(rectangles[i]);
+	int intersects(Rectangle rect) {  }
 
-				if (result == 1)
-					reset(); 
-							
-			}
-
-		}
-
-		else {
-		
-			for (int i = pivot ; i < number_rects ; i++) {
-			
-				int result = intersects(rectangles[i]); 
-			
-				if (result == 1)
-					reset(); 
-
-			}
-		}	
-	}
-
-	void reset() { 
+	int main() { printf("WebAssembly ready and loaded\n");printf("%i\n", MAX); }
 	
-		double new_x = canvas_x / 2; 
-
-		player = (Player) {new_x , original_y , 0}; 
-
-		number_rects = 0; 
-
-		printf("Resetting Game...\n"); 
-		
-	}
-
-	int intersects(Rectangle rect) {
-	
-		int current_sprite = player.sprite_position; 
-
-		int sprite_W = sprites[current_sprite].width;
-		int sprite_H = sprites[current_sprite].height; 
-
-		return (rect.x_position <= player.x_position + sprite_W && rect.x_position + 60 >= player.x_position) &&
-		       (0 <= player.y_position + sprite_H && rect.height >= player.y_position);	
-
-	}
-
-	int main() { printf("WebAssembly ready and loaded\n"); }
-	
-} 
-// deletion is still a problem 
+}

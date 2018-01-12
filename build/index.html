@@ -15,7 +15,7 @@
 		<script type="text/javascript">
   			var Module = {
       				onRuntimeInitialized: function() {
-            				Module._resize(canvas.width , canvas.height);  
+            				resize(canvas.width , canvas.height);  
 					gameLoop();
 				}
     			};
@@ -73,27 +73,18 @@
 
 			function resize() {
 			
-				canvas.width = window.innerWidth * 0.8; 
-				canvas.height = window.innerHeight * 0.8; 
-			
 				_resize(canvas.width , canvas.height);
 				
 				/* Fix this crap at some point */ 
 
-				for (var i = 0 ; i < images.length; i++) {
-				
-					_image_data(images[i].width , images[i].height); 
-				
-				}
-
-				context.beginPath(); 
-				context.moveTo(0 , 50); 
-				context.lineTo(canvas.width , 50); 
-		
+				for (var i = 0 ; i < images.length; i++)
+					_image_data(images[i].width , images[i].height);
+	
 				canvas.autofocus;
 
 				context.canvas.width = window.innerWidth; 
 				context.canvas.height = window.innerHeight;
+			 	
 			}
 
 			function processKey(key , action) {
@@ -138,6 +129,11 @@
 
 				_update(progress); 
  
+				context.beginPath(); 
+				context.moveTo(canvas.width, canvas.height - 2); 
+				context.lineTo(0 , canvas.height - 2);
+			        context.stroke();
+
 				previousTime = timestamp
 
 				requestAnimationFrame(gameLoop);
