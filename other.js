@@ -1,4 +1,4 @@
-
+const storageKey = "CHRISHighScore";
 var initialize = false; 
 
 function loadImages() {
@@ -33,8 +33,23 @@ function loadImages() {
 	images = sprites;
 }
 
-function scoreUpdating() {
+function initHS() {
+	var scoreData = sessionStorage.getItem(storageKey); 
 
-	localStorage.setItem("highScore" , "0"); 
+	if (initialize === false && scoreData === null) {		
+		sessionStorage.setItem(storageKey , "0"); 
+		scoreData = sessionStorage.getItem(storageKey); 
+	}
+	 
+	return scoreData; 
+
 }
 
+function resize() {
+
+	_resize(canvas.width , canvas.height , window.innerHeight);
+        canvas.autofocus;
+	context.canvas.width = window.innerWidth;
+        context.canvas.height = window.innerHeight;
+
+}

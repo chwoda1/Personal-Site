@@ -1,7 +1,8 @@
 body {
 
 	background:#FAFAF6;
-
+	padding:0; 
+	margin:0; 
 }
 
 #header_bar {
@@ -24,6 +25,7 @@ body {
 	display:inline-block;  
 	font-family: "Oswald" , sans-serif;
 	text-decoration:underline; 
+
 }
 
 #personal h4 {
@@ -33,6 +35,7 @@ body {
 	margin-top:-5%;
 	font-family: "Oswald" , sans-serif;
 	text-decoration:underline; 
+
 }
 
 #high_scores {
@@ -47,8 +50,8 @@ body {
 canvas {
 	
 	position:absolute; 
-	bottom:3%; 
-
+	bottom:3%;
+	 
 }
 
 

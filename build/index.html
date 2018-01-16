@@ -7,10 +7,11 @@
 	
 		<link rel='stylesheet' type='text/css' href='static/style.css' />
 		<link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet" /> 
+		<link rel="shortcut icon" type='image/x-icon' href='./static/vulernbot.png'/>
 
 		<meta name="viewport" content ="width=device-width,initial-scale=1,user-scalable=yes"/>
 
-		<title>Welcome!</title>
+		<title>Chris Wood</title>
 		
 		<script type="text/javascript">
   			var Module = {
@@ -31,14 +32,6 @@
 
 		<canvas id='game_canvas' align='center'>Canvas is not supported</canvas>
 
-		<div id='high_scores' align='left'>
-
-			<h3>HIGHSCORE: 0</h3>
-			<h3>SCORE: 0</h3>
-
-		</div>
-
-
 		<div id='header_bar' align='center'>
 			
 			<img src='static/photo.jpg' border='5' height='15%' width='15%'>
@@ -46,6 +39,8 @@
 			<div id='title' align='center'>	
 
 				<h3>Chris Wood</h3>
+
+				<hr>
 
 			</div>
 
@@ -63,29 +58,13 @@
 			var images = [];		
 			
 			const colors = ['#ff0000' , '#00ff00' , '#0000ff' , '#fff835' , '#35fff4'];
-			const canvas = document.getElementById('game_canvas');
+			const canvas = document.getElementById('game_canvas'); 
 			const context = canvas.getContext('2d');
-			
+					
 			canvas.autofocus;
 
 			context.canvas.width = window.innerWidth; 
 			context.canvas.height = window.innerHeight;
-
-			function resize() {
-			
-				_resize(canvas.width , canvas.height);
-				
-				/* Fix this crap at some point */ 
-
-				for (var i = 0 ; i < images.length; i++)
-					_image_data(images[i].width , images[i].height);
-	
-				canvas.autofocus;
-
-				context.canvas.width = window.innerWidth; 
-				context.canvas.height = window.innerHeight;
-			 	
-			}
 
 			function processKey(key , action) {
 			
@@ -109,9 +88,11 @@
 			document.addEventListener("keydown" , e => processKey(e.key , 1)); 
 			document.addEventListener("keyup" , e => processKey(e.key , 0)); 
 			window.addEventListener('resize' , () => {resize();});
- 
+
 			var previousTime = null;
 			var start = null; 
+
+			var hiScore = initHS(); 
 
 			var gameLoop = (timestamp) => {
 				
@@ -119,6 +100,7 @@
 					start = timestamp; 
 					previousTime = timestamp; 
 					loadImages();
+
 					requestAnimationFrame(gameLoop);
 					return;
 				}
@@ -127,14 +109,28 @@
 
 				var progress = (timestamp - previousTime) / 1000;
 
-				_update(progress); 
- 
+				var status = _update(progress); 
+  
 				context.beginPath(); 
 				context.moveTo(canvas.width, canvas.height - 2); 
 				context.lineTo(0 , canvas.height - 2);
 			        context.stroke();
 
-				previousTime = timestamp
+				previousTime = timestamp;
+
+				var score = _get_score(); 
+				
+				if (score > hiScore)
+					hiScore = score; 
+
+				if (status === -1) {
+					sessionStorage.setItem(storageKey , hiScore); 
+				}
+
+				context.font = "25px Oswald"; 
+				context.fillStyle = 'black'; 
+				context.fillText("SCORE: " + score , canvas.width * .05 , canvas.height * .2); 
+				context.fillText("HIGHSCORE: " + hiScore , canvas.width * .05 , canvas.height * .15); 
 
 				requestAnimationFrame(gameLoop);
 

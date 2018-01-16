@@ -3,7 +3,8 @@
 mergeInto(LibraryManager.library , {
 
 	jsDrawImage: function(x , y , imageNum) {
-		context.drawImage(images[imageNum] , x , y);
+		context.drawImage(images[imageNum] , x , y , images[imageNum].width , images[imageNum].height);
+		 
 	},
 
 	jsDrawRectangle: function(x_position , height , color_number) {
@@ -16,8 +17,7 @@ mergeInto(LibraryManager.library , {
 		context.lineWidth = 5; 
 		context.strokeRect(x_position , window.innerHeight - height , 60 , height); 
 
-	},
-
+	}
 });
 
 

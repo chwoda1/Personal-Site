@@ -30,11 +30,11 @@ int canvas_x;
 int canvas_y; 
 int original_y;
 int ceiling; 
+int window_height; 
 
 Player player;
 
 Rectangle rectangles[10];
-Sprite sprites[16];
 
 extern "C" {
 
@@ -86,14 +86,13 @@ extern "C" {
 		}
 	}
 
-	void EMSCRIPTEN_KEEPALIVE resize(int x_param , int y_param) {
+	void EMSCRIPTEN_KEEPALIVE resize(int x_param , int y_param , int window) {
 
 		canvas_x = x_param; 
 		canvas_y = y_param; 
+		window_height = window; 
 
 		ceiling = canvas_y / 2;
-
-		printf("Resizing...\n"); 
 
 		if (!flag) {
 			original_y = canvas_y - 50;
@@ -134,11 +133,13 @@ extern "C" {
 			
 				if (rectangles[i].x_position > canvas_x || rectangles[i].x_position < 0) {
 					rectangles[i].x_position = MAX; 
+					score++; 
 					number_rects--; 
 				}
 			}
 
 			qsort(rectangles , 10 , sizeof(Rectangle) , compare_func);
+	 
 		}
 	}
 
@@ -233,25 +234,81 @@ extern "C" {
 		move_rectangles(time_delta); 
 
 		jsDrawImage(player.x_position , player.y_position , player.sprite_position); 
-	
-		for (int i = 0 ; i < 10 ; i++)
-			jsDrawRectangle(rectangles[i].x_position,rectangles[i].height,rectangles[i].rect_color); 
-		 	 
+
+		int colliding = check_collision(number_rects/2); 	
+
+		if (colliding == 0) {
+			for (int i = 0 ; i < 10 ; i++)
+				jsDrawRectangle(rectangles[i].x_position,rectangles[i].height,rectangles[i].rect_color); 
+		}
+		else {
+
+			
+
+
+		}
 	}
 
 	int EMSCRIPTEN_KEEPALIVE get_score() { return score; }
 
-	void EMSCRIPTEN_KEEPALIVE image_data(int sprite_x , int sprite_y) {
-		sprites[image_counter] = (Sprite) {sprite_x , sprite_y}; 	
-		image_counter++; 
+	int check_collision(int pivot) { 
+
+		int answer; 
+
+		if (rectangles[pivot].x_position >= player.x_position) {
+			
+			for (int i = 0 ; i <= pivot ; i++) {
+				
+				answer = intersects(rectangles[i]); 
+
+				if (answer == 1)
+					break;  
+
+			}
+		}
+
+		else {
+
+			for (int i = pivot ; i < number_rects ; i++) {
+				
+				answer = intersects(rectangles[i]); 
+
+				if (answer == 1)
+					break; 
+
+			} 	
+		}		 
+
+		if (answer == 1){ 
+			return -1; 
+		}
+	
+		return 0;
 	}
 
-	void check_collision(int pivot) { }
+	void reset() { 
+		 
+		for(int i = 0 ; i < number_rects ; i++)
+			rectangles[i].x_position = MAX; 
 
-	void reset() { }
-
-	int intersects(Rectangle rect) {  }
-
-	int main() { printf("WebAssembly ready and loaded\n");printf("%i\n", MAX); }
+		number_rects = 0; 
+		score = 0; 
+		player = (Player) {canvas_x / 2 , original_y , 0}; 
 	
+	}
+
+	int intersects(Rectangle rect) {  
+
+		if (rect.x_position <= (player.x_position + 20) && rect.x_position + RECT_HEIGHT >= player.x_position &&
+		    (window_height - rect.height) <= (player.y_position + 46) && window_height >= player.y_position) 
+		   {
+		
+			return 1; 
+		}
+
+		return 0;
+	}
+
+	int main() { printf("WebAssembly ready and loaded\n"); }
+
 }

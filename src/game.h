@@ -2,6 +2,7 @@ const int SPEED = 400;
 const int FALLING_SPEED = 600; 
 const int MAX = 0xFFFF; 
 const int RECT_HEIGHT = 60;
+const int RESET_RECT = 50;
 
 typedef struct Sprite {
 
@@ -40,7 +41,7 @@ typedef struct Rectangle {
 } Rectangle; 
 
 extern "C" int intersects(Rectangle rect); 
-extern "C" void check_collision(int pivot);
+extern "C" int check_collision(int pivot);
 extern "C" void reset(); 
 extern "C" void make_rectangles(double time_delta); 
 extern "C" void move_rectangles(double time_delta); 
