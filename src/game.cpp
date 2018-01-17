@@ -25,7 +25,7 @@ int resetting;
 int x = 0; 
 int y = 0; 
   
-int base_speed = 250; 
+int base_speed = 275; 
 
 int canvas_x; 
 int canvas_y; 
@@ -298,7 +298,7 @@ extern "C" {
 					rectangles[i].x_position = MAX;
 					number_rects--; 
 				}
-				else if (rectangles[i].x_position < 0 - 60 && rectangles[i].direction == 0) {
+				else if (rectangles[i].x_position < 0 - RECT_WIDTH && rectangles[i].direction == 0) {
 					rectangles[i].x_position = MAX;
 					number_rects--;
 				}
@@ -334,6 +334,31 @@ extern "C" {
 		player = (Player) {canvas_x / 2 , original_y , 0}; 
 		dir_jumping = 0; 
 		dir_right = 0; 
+	}
+
+	void kill_player(double time_delta) {
+	
+		if (dir_right == 1) {
+		
+		}
+
+		else if (dir_left == 1) {
+		
+		}
+
+		else if (dir_jumping == 1) {
+		
+		
+		}
+
+		else if (falling == 1) {
+		
+		}
+
+		else {
+		
+		}
+	
 	}
 
 	int intersects(Rectangle rect) {  
