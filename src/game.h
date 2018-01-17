@@ -1,15 +1,9 @@
-const int SPEED = 400; 
-const int FALLING_SPEED = 600; 
-const int MAX = 0xFFFF; 
-const int RECT_HEIGHT = 60;
-const int RESET_RECT = 50;
-
-typedef struct Sprite {
-
-	int width; 
-	int height; 
-
-}Sprite; 
+const int SPEED = 800; 
+const int FALLING_SPEED = 800; 
+const int MAX = 0xFFFFF; 
+const int RECT_WIDTH = 20;
+const int RESET_RECT = 600;
+const float GRAV = 0.8f;
 
 typedef struct Player {
 	double x_position; 
@@ -41,7 +35,7 @@ typedef struct Rectangle {
 } Rectangle; 
 
 extern "C" int intersects(Rectangle rect); 
-extern "C" int check_collision(int pivot);
+extern "C" int check_collision();
 extern "C" void reset(); 
 extern "C" void make_rectangles(double time_delta); 
 extern "C" void move_rectangles(double time_delta); 

@@ -18,6 +18,7 @@ mergeInto(LibraryManager.library , {
 		context.strokeRect(x_position , window.innerHeight - height , 60 , height); 
 
 	}
+
 });
 
 

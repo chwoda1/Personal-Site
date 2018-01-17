@@ -21,8 +21,7 @@
 				}
     			};
 		</script>
-
-		
+	
 		{{{ SCRIPT }}}
 	
 		<script type='text/javascript' src='./other.js'></script>
@@ -38,9 +37,9 @@
 			
 			<div id='title' align='center'>	
 
-				<h3>Chris Wood</h3>
+				<h2>Chris Wood</h2>
 
-				<hr>
+				<hr style="width=25%;">
 
 			</div>
 
@@ -115,7 +114,7 @@
 				context.moveTo(canvas.width, canvas.height - 2); 
 				context.lineTo(0 , canvas.height - 2);
 			        context.stroke();
-
+			 
 				previousTime = timestamp;
 
 				var score = _get_score(); 
@@ -127,10 +126,10 @@
 					sessionStorage.setItem(storageKey , hiScore); 
 				}
 
-				context.font = "25px Oswald"; 
+				context.font = "30px Oswald"; 
 				context.fillStyle = 'black'; 
-				context.fillText("SCORE: " + score , canvas.width * .05 , canvas.height * .2); 
-				context.fillText("HIGHSCORE: " + hiScore , canvas.width * .05 , canvas.height * .15); 
+				context.fillText("SCORE: " + score , canvas.width * .01 , canvas.height * .1); 
+				context.fillText("HIGHSCORE: " + hiScore , canvas.width * .01 , canvas.height * .15); 
 
 				requestAnimationFrame(gameLoop);
 
