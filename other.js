@@ -5,7 +5,7 @@ function loadImages() {
 	
 	var sprites = new Array(); 	
 
-	for (var i = 0 ; i < 21 ; i++) 
+	for (var i = 0 ; i < 19 ; i++) 
 		sprites[i] = new Image(); 
 
 	sprites[0].src = 'static/sprites/still_sprite.png';
@@ -32,9 +32,6 @@ function loadImages() {
 
 	sprites[17].src = 'static/sprites/dying_left.png'; 
 	sprites[18].src = 'static/sprites/dying_right.png'; 
-
-	sprites[19].src = 'static/sprites/dead_left.png'; 
-	sprites[20].src = 'static/sprites/dead_right.png'; 
 
 	images = sprites;
 }
