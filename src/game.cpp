@@ -1,6 +1,5 @@
 #include <emscripten/emscripten.h>
 #include <stdlib.h> 
-#include <assert.h> 
 #include "game.h"
  
 extern "C" {
@@ -26,13 +25,18 @@ int x = 0;
 int y = 0; 
   
 int base_speed = 275; 
+int max_speed = 325;
 
 int canvas_x; 
 int canvas_y; 
+int lose_counter; 
 int original_y;
 int ceiling; 
 int window_height; 
 
+int locked = 0; 
+
+int directional_rect;
 Player player;
 
 Rectangle rectangles[10];
@@ -55,17 +59,16 @@ extern "C" {
 			rectangles[hole+1] = to_insert; 
 
 		}
-		for (int i = 1 ; i < 9 ; i++) {
-			assert(rectangles[i].x_position <= rectangles[i+1].x_position && rectangles[i].x_position >= rectangles[i-1].x_position);
-		}
-
 	}
 
 	void EMSCRIPTEN_KEEPALIVE right(int key_event) {
 	
+		if(locked)
+			return;
+
 		dir_right = key_event; 		
 		
-		if (key_event == 0) {
+		if (key_event == 0 && locked == 0) {
 			player.sprite_position = 7; 
 			y = 0; 
 		}
@@ -73,10 +76,12 @@ extern "C" {
 	}
 
 	void EMSCRIPTEN_KEEPALIVE left(int key_event) {
-		
+		if (locked)
+			return;
+
 		dir_left = key_event;
 	
-		if (key_event == 0) {
+		if (key_event == 0 && locked == 0) {
 		
 			player.sprite_position = 1; 
 			x = 0; 
@@ -84,7 +89,10 @@ extern "C" {
 	}
 	
 	void EMSCRIPTEN_KEEPALIVE jump(int key_event) {
-		
+	
+		if(locked)
+			return; 	
+
 		if (key_event == 1 && falling != 1) {
 			dir_jumping = 1; 
 		}
@@ -97,6 +105,7 @@ extern "C" {
 
 		canvas_x = x_param; 
 		canvas_y = y_param; 
+		lose_counter = canvas_y; 
 		window_height = window; 
 
 		ceiling = canvas_y / 2;
@@ -122,15 +131,15 @@ extern "C" {
 
 			int color_rand = rand() % 5;
 
-			if (score % 5 == 0 && base_speed < 500) {
+			if (score % 5 == 0 && base_speed < 500 && max_speed < 500) {
 				base_speed += 25;
-
+				max_speed += 25; 
 				if (spawn_rate > 1)
 					spawn_rate -= .25; 
 			}
 			
 
-			int velocity = rand() % 400 + base_speed; 
+			int velocity = rand() % max_speed + base_speed; 
 			int height = rand() % ((canvas_y/2) - 200) + 90; 
 			int x_position = 0; 
 			int direction = 0; 
@@ -170,9 +179,12 @@ extern "C" {
 	
 		double movement = time_delta * SPEED; 
 		double fall_speed = time_delta * FALLING_SPEED;
+		
+		if (resetting)
+			return;
 
 		if (dir_right == 1) {
-		
+
 			player.x_position += movement;  
 			player.sprite_position = x++ % (12 - 7 + 1) + 7;
  	
@@ -252,7 +264,7 @@ extern "C" {
 	
 	void EMSCRIPTEN_KEEPALIVE update(double time_delta) {
 
-		int colliding; 
+		int colliding;  
 
 		if (resetting == 0) {
 
@@ -264,17 +276,21 @@ extern "C" {
 
 			colliding = check_collision();
 	
-			if (colliding == 0) { 
+			if (colliding == -1) { 
 
 				jsDrawImage(player.x_position , player.y_position , player.sprite_position);
 
 				for (int i = 0 ; i < number_rects ; i++)
-					jsDrawRectangle(rectangles[i].x_position,rectangles[i].height,rectangles[i].rect_color); 
-		 
+					jsDrawRectangle(rectangles[i].x_position,rectangles[i].height,rectangles[i].rect_color); 	 
 			}
 		}
 
-		if (colliding == 1 || resetting == 1) {
+		if (colliding >= 0 || resetting == 1) {
+			
+			if (colliding >= 0) {
+				directional_rect = colliding;
+			}
+			
 			resetting = 1; 
 
 			int data = number_rects; 
@@ -306,7 +322,8 @@ extern "C" {
 				sort();
 
 				jsDrawRectangle(rectangles[i].x_position,rectangles[i].height,rectangles[i].rect_color);
-
+				
+				kill_player(time_delta , directional_rect); 
 			} 
 		
 			if (number_rects == 0)
@@ -319,46 +336,70 @@ extern "C" {
 
 	int check_collision() { 
 
+		// Returns value in index for comparision check
 		for (int i = 0 ; i < number_rects ; i++) {
 			if (intersects(rectangles[i]) == 1)
-				return 1; 
+				return i; 
 		}			
 	
-		return 0;
+		return -1;
 	}
 
 	void reset() { 
+		locked = 0;
 		number_rects = 0; 
 		score = 0; 
+		lose_counter = canvas_y;
 		resetting = 0;
 		player = (Player) {canvas_x / 2 , original_y , 0}; 
 		dir_jumping = 0; 
 		dir_right = 0; 
 	}
 
-	void kill_player(double time_delta) {
-	
+	void kill_player(double time_delta , int rect_lookup) {
+		locked = 1;
+		int deadly_direction = rectangles[rect_lookup].direction;
+ 
 		if (dir_right == 1) {
-		
+			player.sprite_position = 18;
+			
+			if (deadly_direction == 1) {
+				jsDrawImage(player.x_position - 10 , player.y_position - 10, player.sprite_position);
+			}
+			else {
+				jsDrawImage(player.x_position + 10 , player.y_position + 10 , player.sprite_position); 
+			}			
+			
 		}
 
 		else if (dir_left == 1) {
-		
-		}
+			player.sprite_position = 17; 
 
-		else if (dir_jumping == 1) {
-		
-		
-		}
+			if (deadly_direction == 1) {
+				jsDrawImage(player.x_position - 10 , player.y_position - 10, player.sprite_position);
+			}
+			else {
+				jsDrawImage(player.x_position + 10 , player.y_position + 10, player.sprite_position); 
+			}
 
-		else if (falling == 1) {
-				
 		}
 
 		else {
 		
+			if (deadly_direction == 1) {
+				player.sprite_position = 18;
+				jsDrawImage(player.x_position - 10 , player.y_position - 10, player.sprite_position);
+			}
+			else {
+				player.sprite_position = 17;
+				jsDrawImage(player.x_position + 10 , player.y_position + 10 , player.sprite_position); 
+
+			}
+
 		}
-	
+
+		int move_lose_text = time_delta * 10; 
+
 	}
 
 	int intersects(Rectangle rect) {  

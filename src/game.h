@@ -1,9 +1,11 @@
 const int SPEED = 800; 
 const int FALLING_SPEED = 800; 
 const int MAX = 0xFFFFF; 
-const int RECT_WIDTH = 20;
+const int RECT_WIDTH = 30;
 const int RESET_RECT = 600;
 const float GRAV = 0.8f;
+
+const char *LOSE = "You Lose"; 
 
 typedef struct Player {
 	double x_position; 
@@ -34,6 +36,7 @@ typedef struct Rectangle {
 
 } Rectangle; 
 
+extern "C" void kill_player(double time_delta , int rect); 
 extern "C" int intersects(Rectangle rect); 
 extern "C" int check_collision();
 extern "C" void reset(); 

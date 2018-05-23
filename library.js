@@ -11,14 +11,14 @@ mergeInto(LibraryManager.library , {
 		context.globalAlpha = .8; 
 		context.fillStyle = colors[color_number]; 
 		
-		context.fillRect(x_position , window.innerHeight - height , 60 , height); 
+		context.fillRect(x_position , window.innerHeight - height , 30 , height); 
 	 
 		context.strokeStyle = 'black'; 
 		context.lineWidth = 5; 
-		context.strokeRect(x_position , window.innerHeight - height , 60 , height); 
+		context.strokeRect(x_position , window.innerHeight - height , 30 , height); 
 
 	}
-
+	
 });
 
 
