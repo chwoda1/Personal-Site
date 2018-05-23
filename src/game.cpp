@@ -76,6 +76,7 @@ extern "C" {
 	}
 
 	void EMSCRIPTEN_KEEPALIVE left(int key_event) {
+	
 		if (locked)
 			return;
 
@@ -93,12 +94,8 @@ extern "C" {
 		if(locked)
 			return; 	
 
-		if (key_event == 1 && falling != 1) {
-			dir_jumping = 1; 
-		}
-		else {
-			dir_jumping = 0;
-		}
+		dir_jumping = (key_event == 1 && falling != 1) ? 1 : 0; 
+		
 	}
 
 	void EMSCRIPTEN_KEEPALIVE resize(int x_param , int y_param , int window) {
@@ -179,20 +176,17 @@ extern "C" {
 	
 		double movement = time_delta * SPEED; 
 		double fall_speed = time_delta * FALLING_SPEED;
-		
-		if (resetting)
-			return;
 
 		if (dir_right == 1) {
 
 			player.x_position += movement;  
-			player.sprite_position = x++ % (12 - 7 + 1) + 7;
+			player.sprite_position = x++ % 13;
  	
 		}
 
 		else if (dir_left == 1) {
 			player.x_position -= movement;
-			player.sprite_position = (y++ % 7 + 1); 
+			player.sprite_position = y++ % 8; 
 		}
 		
 		if (dir_jumping == 1) {
@@ -201,13 +195,9 @@ extern "C" {
 			
 				player.y_position -= fall_speed; 
 				player.y_position -= GRAV * time_delta; 
-				if (dir_right == 1) {
-					player.sprite_position = 16;
-				}
-
-				else {
-					player.sprite_position = 15;
-				}	
+	
+				player.sprite_position = (dir_right == 1) ? 16 : 15;
+					
 			}
 
 			else {
@@ -223,16 +213,8 @@ extern "C" {
 			
 			if (player.y_position - movement < original_y) {
 			
-				player.y_position += fall_speed; 		
-				player.y_position += GRAV * time_delta;
-
-				if (dir_right == 1) {
-					player.sprite_position = 14;
-				}
-
-				else {
-					player.sprite_position = 13;
-				}
+				player.y_position += fall_speed + (GRAV * time_delta); 			
+				player.sprite_position = (dir_right == 1) ? 14 : 13;
 
 			} 
 			else {
@@ -287,9 +269,8 @@ extern "C" {
 
 		if (colliding >= 0 || resetting == 1) {
 			
-			if (colliding >= 0) {
+			if (colliding >= 0)
 				directional_rect = colliding;
-			}
 			
 			resetting = 1; 
 
@@ -321,7 +302,7 @@ extern "C" {
  
 				sort();
 
-				jsDrawRectangle(rectangles[i].x_position,rectangles[i].height,rectangles[i].rect_color);
+				jsDrawRectangle(rectangles[i].x_position , rectangles[i].height , rectangles[i].rect_color);
 				
 				kill_player(time_delta , directional_rect); 
 			} 
@@ -354,6 +335,7 @@ extern "C" {
 		player = (Player) {canvas_x / 2 , original_y , 0}; 
 		dir_jumping = 0; 
 		dir_right = 0; 
+	        dir_left = 0; 	
 	}
 
 	void kill_player(double time_delta , int rect_lookup) {
