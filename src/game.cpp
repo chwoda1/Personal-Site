@@ -179,16 +179,28 @@ extern "C" {
 
 		if (dir_right == 1) {
 
-			player.x_position += movement;  
-			player.sprite_position = x++ % 13;
+			if (player.x_position + movement > canvas_x - 2) 
+				goto jumping;
+			else {
+				player.x_position += movement;  
+				player.sprite_position = x++ % 13;
+			}
+			
  	
 		}
 
 		else if (dir_left == 1) {
-			player.x_position -= movement;
-			player.sprite_position = y++ % 8; 
+
+			if(player.x_position - movement < 0)
+				goto jumping; // i hate this too, but i'll fix it eventually 
+			else {
+				player.x_position -= movement;
+				player.sprite_position = y++ % 8;
+			}
+			 
 		}
 		
+jumping: 
 		if (dir_jumping == 1) {
 		
 			if (player.y_position - movement > ceiling) {
@@ -317,7 +329,6 @@ extern "C" {
 
 	int check_collision() { 
 
-		// Returns value in index for comparision check
 		for (int i = 0 ; i < number_rects ; i++) {
 			if (intersects(rectangles[i]) == 1)
 				return i; 
@@ -379,8 +390,6 @@ extern "C" {
 			}
 
 		}
-
-		int move_lose_text = time_delta * 10; 
 
 	}
 
