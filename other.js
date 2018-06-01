@@ -56,3 +56,15 @@ function resize() {
         context.canvas.height = window.innerHeight;
 
 }
+
+function clear() {
+
+	var gameLoop = (timestamp) => {
+	
+	
+	}
+	
+
+	context.fillText("Hi! I'm Chris and welcome to my site!"); 
+
+}
