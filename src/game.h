@@ -1,4 +1,4 @@
-const int SPEED = 800; 
+const int SPEED = 750; 
 const int FALLING_SPEED = 800; 
 const int MAX = 0xFFFFF; 
 const int RECT_WIDTH = 30;
@@ -23,7 +23,7 @@ typedef struct Rectangle {
 	double x_position; 
 	int height; 
 	int rect_color; 
-
+	int colliding; 
 	int direction; 
 
 	/** 

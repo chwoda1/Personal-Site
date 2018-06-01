@@ -1,7 +1,8 @@
 #include <emscripten/emscripten.h>
 #include <stdlib.h> 
+#include <assert.h> 
 #include "game.h"
- 
+
 extern "C" {
 	extern void jsDrawImage(int x , int y , int image_number);
 	extern void jsDrawRectangle(int x_position , int random_num , int color_number); 
@@ -9,6 +10,7 @@ extern "C" {
 
 double time_sum = 0.0;
 double spawn_rate = 3.0;
+double animation_accumulator = 0; 
 
 int score = 0; 
 int image_counter = 0; 
@@ -19,10 +21,13 @@ int dir_left = 0;
 int dir_jumping = 0; 
 int falling;
 int flag = 0;
-int resetting; 
 
-int x = 0; 
-int y = 0; 
+int resetting; 
+int colliding; 
+int collision_index; 
+
+long long x = 0; 
+long long y = 0; 
   
 int base_speed = 275; 
 int max_speed = 325;
@@ -35,8 +40,6 @@ int ceiling;
 int window_height; 
 
 int locked = 0; 
-
-int directional_rect;
 Player player;
 
 Rectangle rectangles[10];
@@ -44,20 +47,22 @@ Rectangle rectangles[10];
 extern "C" {
 
 	void sort() {
-	
-		for (int i = 1 ; i < 10 ; i++) {
-		
-			Rectangle to_insert = rectangles[i]; 
 
-			int hole = i - 1; 
-
-			while (hole >= 0 && rectangles[hole].x_position > to_insert.x_position ) {
-				rectangles[hole+1] = rectangles[hole]; 
-				hole--; 
+		for (int i = 0 ; i < 9 ; i++) {
+			for(int j = 0 ; j < 10 - i - 1 ; j++) {
+				if (rectangles[j].x_position > rectangles[j + 1].x_position) {
+					Rectangle temp = rectangles[j]; 
+					rectangles[j] = rectangles[j+1];
+					rectangles[j+1] = temp; 
+				}
 			}
-			
-			rectangles[hole+1] = to_insert; 
+		}
 
+		for (int i = 0 ; i < 10 ; i++) {
+			if (rectangles[i].colliding == 1) {
+				collision_index = i; 
+				break; 
+			}
 		}
 	}
 
@@ -82,8 +87,7 @@ extern "C" {
 
 		dir_left = key_event;
 	
-		if (key_event == 0 && locked == 0) {
-		
+		if (key_event == 0 && locked == 0) {	
 			player.sprite_position = 1; 
 			x = 0; 
 		}
@@ -110,7 +114,7 @@ extern "C" {
 		if (!flag) {
 			original_y = canvas_y - 50;
 			player = (Player) {canvas_x / 2 , original_y , 0}; 
-			flag = 1; 
+			flag = 1; // why do i name variables like this... Figure out what it means 
 			
 			for (int i = 0 ; i < 10 ; i++)
 				rectangles[i].x_position = MAX; 
@@ -124,9 +128,7 @@ extern "C" {
 
 		if (time_sum > spawn_rate) {
 		
-			time_sum = 0.0; 
-
-			int color_rand = rand() % 5;
+			time_sum = 0.0;
 
 			if (score % 5 == 0 && base_speed < 500 && max_speed < 500) {
 				base_speed += 25;
@@ -143,10 +145,10 @@ extern "C" {
 
 			if (rand() % 2 == 1) {
 				x_position = canvas_x; 
-				direction = 1; 
+				direction = 1; // left
 			} 
 
-			Rectangle rect = { x_position , height , color_rand , direction , velocity }; 
+			Rectangle rect = { x_position , height , rand() % 5 , 0 , direction , velocity }; 
 			
 			rectangles[number_rects] = rect; 
 			number_rects++;  	
@@ -176,14 +178,21 @@ extern "C" {
 	
 		double movement = time_delta * SPEED; 
 		double fall_speed = time_delta * FALLING_SPEED;
+		
+		animation_accumulator += time_delta; 
 
 		if (dir_right == 1) {
 
 			if (player.x_position + movement > canvas_x - 2) 
 				goto jumping;
 			else {
-				player.x_position += movement;  
-				player.sprite_position = x++ % 13;
+				player.x_position += movement; 
+
+				if (animation_accumulator > 0.125) {
+					player.sprite_position = (x++ % 6) + 7;				
+					animation_accumulator = 0; 
+				}
+
 			}
 			
  	
@@ -192,10 +201,16 @@ extern "C" {
 		else if (dir_left == 1) {
 
 			if(player.x_position - movement < 0)
-				goto jumping; // i hate this too, but i'll fix it eventually 
+				goto jumping; // corner case handled  
 			else {
 				player.x_position -= movement;
-				player.sprite_position = y++ % 8;
+				
+				if (animation_accumulator > 0.125) {
+					player.sprite_position = (y++ % 6) + 1;
+					animation_accumulator = 0; 	
+				}
+			
+			
 			}
 			 
 		}
@@ -205,8 +220,7 @@ jumping:
 		
 			if (player.y_position - movement > ceiling) {
 			
-				player.y_position -= fall_speed; 
-				player.y_position -= GRAV * time_delta; 
+				player.y_position -= fall_speed + (GRAV * time_delta);
 	
 				player.sprite_position = (dir_right == 1) ? 16 : 15;
 					
@@ -242,9 +256,9 @@ jumping:
 		for (int i = 0 ; i < number_rects ; i++) {
 	
 			double movement = time_delta * rectangles[i].velocity; 
-		 
+	 
 			switch (rectangles[i].direction) {
-			
+
 				case 0: 
 					rectangles[i].x_position += movement; 
 					break; 
@@ -256,10 +270,9 @@ jumping:
 		}
 	} 
 	
-	void EMSCRIPTEN_KEEPALIVE update(double time_delta) {
-
-		int colliding;  
-
+	// use double sum and only move player sprite if > a certain value 
+	void EMSCRIPTEN_KEEPALIVE update(double time_delta , double sum) {  
+	
 		if (resetting == 0) {
 
 			move_player(time_delta);	 
@@ -269,20 +282,20 @@ jumping:
 			move_rectangles(time_delta);
 
 			colliding = check_collision();
-	
+
+			rectangles[colliding].colliding = 1;
+
 			if (colliding == -1) { 
+				
 
 				jsDrawImage(player.x_position , player.y_position , player.sprite_position);
 
 				for (int i = 0 ; i < number_rects ; i++)
-					jsDrawRectangle(rectangles[i].x_position,rectangles[i].height,rectangles[i].rect_color); 	 
+					jsDrawRectangle(rectangles[i].x_position , rectangles[i].height , rectangles[i].rect_color); 	 
 			}
 		}
 
 		if (colliding >= 0 || resetting == 1) {
-			
-			if (colliding >= 0)
-				directional_rect = colliding;
 			
 			resetting = 1; 
 
@@ -312,14 +325,15 @@ jumping:
 					number_rects--;
 				}
  
-				sort();
+				sort();  
 
 				jsDrawRectangle(rectangles[i].x_position , rectangles[i].height , rectangles[i].rect_color);
 				
-				kill_player(time_delta , directional_rect); 
+				kill_player(time_delta , collision_index);
+
 			} 
 		
-			if (number_rects == 0)
+			if (number_rects == 0) 
 				reset(); 
 			
 		}
@@ -338,6 +352,8 @@ jumping:
 	}
 
 	void reset() { 
+		base_speed = 275; 
+		max_speed = 325;
 		locked = 0;
 		number_rects = 0; 
 		score = 0; 
@@ -346,49 +362,25 @@ jumping:
 		player = (Player) {canvas_x / 2 , original_y , 0}; 
 		dir_jumping = 0; 
 		dir_right = 0; 
-	        dir_left = 0; 	
+	        dir_left = 0; 
+		colliding = -1; 
+		rectangles[collision_index].colliding = 0; 
 	}
 
 	void kill_player(double time_delta , int rect_lookup) {
+
 		locked = 1;
 		int deadly_direction = rectangles[rect_lookup].direction;
- 
-		if (dir_right == 1) {
+ 		
+		// going left 
+		if (deadly_direction == 1) {
 			player.sprite_position = 18;
-			
-			if (deadly_direction == 1) {
-				jsDrawImage(player.x_position - 10 , player.y_position - 10, player.sprite_position);
-			}
-			else {
-				jsDrawImage(player.x_position + 10 , player.y_position + 10 , player.sprite_position); 
-			}			
-			
+			jsDrawImage(player.x_position - 10 , player.y_position - 10, player.sprite_position);
 		}
-
-		else if (dir_left == 1) {
-			player.sprite_position = 17; 
-
-			if (deadly_direction == 1) {
-				jsDrawImage(player.x_position - 10 , player.y_position - 10, player.sprite_position);
-			}
-			else {
-				jsDrawImage(player.x_position + 10 , player.y_position + 10, player.sprite_position); 
-			}
-
-		}
-
+		// going right 
 		else {
-		
-			if (deadly_direction == 1) {
-				player.sprite_position = 18;
-				jsDrawImage(player.x_position - 10 , player.y_position - 10, player.sprite_position);
-			}
-			else {
-				player.sprite_position = 17;
-				jsDrawImage(player.x_position + 10 , player.y_position + 10 , player.sprite_position); 
-
-			}
-
+			player.sprite_position = 17;
+			jsDrawImage(player.x_position + 10 , player.y_position + 10 , player.sprite_position); 
 		}
 
 	}
@@ -396,7 +388,7 @@ jumping:
 	int intersects(Rectangle rect) {  
 
 		if (rect.x_position < (player.x_position + 20) && rect.x_position + RECT_WIDTH > player.x_position &&
-		    (window_height - rect.height) < (player.y_position + 46) && window_height > player.y_position) 
+		    (window_height - rect.height) < (player.y_position + 45) && window_height > player.y_position) 
 		   {
 		
 			return 1; 

@@ -94,6 +94,7 @@
 
 			var previousTime = null;
 			var start = null; 
+			var sum = null; 
 
 			var hiScore = initHS(); 
 
@@ -111,9 +112,13 @@
 				context.clearRect(0,0,canvas.width,canvas.height); 
 
 				var progress = (timestamp - previousTime) / 1000;
+				sum += (timestamp - previousTime);
 
-				var status = _update(progress); 
- 				console.log(status); 
+				_update(progress , sum);  
+
+				if (sum > 30)
+					sum = 0; 
+
 				context.beginPath(); 
 				context.moveTo(canvas.width, canvas.height - 2); 
 				context.lineTo(0 , canvas.height - 2);
@@ -126,9 +131,6 @@
 				if (score > hiScore)
 					hiScore = score; 
 
-				if (status === -1) {
-					sessionStorage.setItem(storageKey , hiScore); 
-				}
 
 				context.font = "30px Oswald"; 
 				context.fillStyle = 'black'; 
