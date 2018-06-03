@@ -15,6 +15,7 @@ double animation_accumulator = 0;
 int score = 0; 
 int image_counter = 0; 
 int number_rects = 0; 
+int about_flag = 0; 
 
 int dir_right = 0; 
 int dir_left = 0;  
@@ -100,6 +101,13 @@ extern "C" {
 
 		dir_jumping = (key_event == 1 && falling != 1) ? 1 : 0; 
 		
+	}
+	
+	/** 
+	 * Sets the about me flag to tell the board to clear without restarting 
+	 **/ 
+	void EMSCRIPTEN_KEEPALIVE set_flag() {
+		about_flag = 1; 
 	}
 
 	void EMSCRIPTEN_KEEPALIVE resize(int x_param , int y_param , int window) {
@@ -295,52 +303,72 @@ jumping:
 			}
 		}
 
-		if (colliding >= 0 || resetting == 1) {
+		if (colliding >= 0 || resetting == 1 || about_flag == 1) {
 			
 			resetting = 1; 
 
-			int data = number_rects; 
-
-			double movement = time_delta * RESET_RECT; 
-
-			for (int i = 0 ; i < data ; i++) {
-			
-				switch (rectangles[i].direction) {
-				
-					case 0:
-						rectangles[i].x_position -= movement;  
-						break; 
-					case 1: 
-						rectangles[i].x_position += movement; 
-						break; 
-				
-				}
- 
-				if (rectangles[i].x_position > canvas_x && rectangles[i].direction == 1) {
-					rectangles[i].x_position = MAX;
-					number_rects--; 
-				}
-				else if (rectangles[i].x_position < 0 - RECT_WIDTH && rectangles[i].direction == 0) {
-					rectangles[i].x_position = MAX;
-					number_rects--;
-				}
- 
-				sort();  
-
-				jsDrawRectangle(rectangles[i].x_position , rectangles[i].height , rectangles[i].rect_color);
-				
-				kill_player(time_delta , collision_index);
-
-			} 
-		
-			if (number_rects == 0) 
-				reset(); 
+			reset_board(time_delta);   
 			
 		}
 	}
 
-	int EMSCRIPTEN_KEEPALIVE get_score() { return score; }
+	/**
+	 *
+	 * Created this function AFTER desiging literally the entire game. Whenever the player loses pass in an index
+	 * which then ID's the rectangle that collided with the player. This will tell the direction that the player was
+	 * hit from.
+	 *
+	 * However, you can also pass in a -1 value. This will have a special use which will clear the board in a pretty way
+	 * and keep it cleared so you can draw other stuff.
+	 *
+	 *
+	 * @TODO remove that about_flag at some point. There has to be a better way 
+	 *
+	 **/ 
+	void EMSCRIPTEN_KEEPALIVE reset_board(double time_delta) {
+		
+		double movement = time_delta * RESET_RECT; 
+		int data = number_rects;
 
+		for (int i = 0 ; i < data ; i++) {
+			
+			// switch this to a ternary operator 
+			switch (rectangles[i].direction) {
+				
+				case 0: 
+					rectangles[i].x_position -= movement; 
+					break; 
+				case 1: 
+					rectangles[i].x_position += movement; 
+					break; 
+			}
+
+			if (rectangles[i].x_position > canvas_x && rectangles[i].direction == 1) {
+                                        rectangles[i].x_position = MAX;
+                                        number_rects--; 
+                        }   
+			else if (rectangles[i].x_position < 0 - RECT_WIDTH && rectangles[i].direction == 0) {
+				rectangles[i].x_position = MAX;
+				number_rects--;
+			}   
+ 
+                        sort();
+
+			jsDrawRectangle(rectangles[i].x_position , rectangles[i].height , rectangles[i].rect_color); 
+
+			// this is where the -1 gets passed in
+
+			if (about_flag == 0)
+				kill_player(time_delta , collision_index); 
+
+			if (number_rects == 0 && about_flag == 0) 
+				reset();
+
+		}
+	}
+
+	int EMSCRIPTEN_KEEPALIVE get_score() { return score; }
+	
 	int check_collision() { 
 
 		for (int i = 0 ; i < number_rects ; i++) {

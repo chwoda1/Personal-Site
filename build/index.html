@@ -92,10 +92,14 @@
 			document.addEventListener("keyup" , e => processKey(e.key , 0)); 
 			window.addEventListener('resize' , () => {resize();});
 
+			var text_pos = canvas.width * .35; 
+			var text_y = 0; 
+			var speed = 150; 
+
 			var previousTime = null;
 			var start = null; 
 			var sum = null; 
-
+			var about = false; 
 			var hiScore = initHS(); 
 
 			var gameLoop = (timestamp) => {
@@ -104,9 +108,10 @@
 					start = timestamp; 
 					previousTime = timestamp; 
 					loadImages();
-
+					
+					document.getElementById('about').onclick = function() { _set_flag(); about = true;}
 					requestAnimationFrame(gameLoop);
-					return;
+					return; 
 				}
 
 				context.clearRect(0,0,canvas.width,canvas.height); 
@@ -131,12 +136,20 @@
 				if (score > hiScore)
 					hiScore = score; 
 
-
 				context.font = "30px Oswald"; 
 				context.fillStyle = 'black'; 
 				context.fillText("SCORE: " + score , canvas.width * .01 , canvas.height * .1); 
 				context.fillText("HIGHSCORE: " + hiScore , canvas.width * .01 , canvas.height * .15); 
 
+				if (about == true) {
+					context.fillText("Hi! I'm Chris and Welcome to my Site!" , text_pos , text_y);
+
+					text_y += (progress * 150); 
+
+					if (text_y > (canvas.height * .7))
+						return; 
+
+				}
 				requestAnimationFrame(gameLoop);
 
 			};

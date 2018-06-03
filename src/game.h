@@ -43,3 +43,4 @@ extern "C" void reset();
 extern "C" void make_rectangles(double time_delta); 
 extern "C" void move_rectangles(double time_delta); 
 extern "C" void move_player(double movement); 
+extern "C" void reset_board(double time_delta); 

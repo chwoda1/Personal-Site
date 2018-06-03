@@ -57,14 +57,3 @@ function resize() {
 
 }
 
-function clear() {
-
-	var gameLoop = (timestamp) => {
-	
-	
-	}
-	
-
-	context.fillText("Hi! I'm Chris and welcome to my site!"); 
-
-}
