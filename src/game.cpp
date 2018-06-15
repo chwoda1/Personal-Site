@@ -107,7 +107,7 @@ extern "C" {
 	 * Sets the about me flag to tell the board to clear without restarting 
 	 **/ 
 	void EMSCRIPTEN_KEEPALIVE set_flag() {
-		about_flag = 1; 
+		about_flag = (about_flag == 0) ? 1 : 0;
 	}
 
 	void EMSCRIPTEN_KEEPALIVE resize(int x_param , int y_param , int window) {

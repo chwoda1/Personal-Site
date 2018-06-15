@@ -32,19 +32,25 @@
 		<canvas id='game_canvas' align='center'>Canvas is not supported</canvas>
 
 		<div id="wasm" align='right' style='padding: 1% 1% 0% 0%;'>
-			<img src='static/WASM_Logo.png' border='2' height='3%' width='3%'>
+			<img src='static/WASM_Logo.png' height='3%' width='3%'>
+		</div>
+
+		<div id='linkedin' align='right' style='padding: 1% 1% 0% 0%;'>
+			<a href='https://www.linkedin.com/in/chris-wood-a2318395/'><img src='static/linkedin.png' height='3%' width='3%'></a>
 		</div>
 
 		<div id='header_bar' align='center'>
 			
-			<img src='static/photo.jpg' border='5' height='15%' width='15%'>
-			
-			<div id='title' align='center'>	
-
-				<h2>Chris Wood</h2>
-
-				<hr style="width=25%;">
+			<div id="home_click">
+				<img src='static/photo.jpg' border='5' height='15%' width='15%'>
 				
+				<div id='title' align='center'>
+
+					<h2>Chris Wood</h2>
+
+					<hr style="width=25%;">
+					
+				</div>
 			</div>
 
 			<div id='personal' align='center'>
@@ -109,7 +115,8 @@
 					previousTime = timestamp; 
 					loadImages();
 					
-					document.getElementById('about').onclick = function() { _set_flag(); about = true;}
+					document.getElementById('about').onclick = function() { if(about == false) _set_flag(); about = true;}
+					document.getElementById('home_click').onclick = function() { if(about == true) _set_flag(); about = false; console.log("hello");}
 					requestAnimationFrame(gameLoop);
 					return; 
 				}
@@ -144,19 +151,16 @@
 				if (about == true) {
 					context.fillText("Hi! I'm Chris and Welcome to my Site!" , text_pos , text_y);
 
-					text_y += (progress * 150); 
+					text_y += (progress * 200); 
 
 					if (text_y > (canvas.height * .7))
 						return; 
 
 				}
+				
 				requestAnimationFrame(gameLoop);
-
 			};
-
-			
+		
 		</script>
-
 	</body>
-
 </html>
