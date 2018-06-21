@@ -5,8 +5,6 @@ const int RECT_WIDTH = 30;
 const int RESET_RECT = 600;
 const float GRAV = 0.8f;
 
-const char *LOSE = "You Lose"; 
-
 typedef struct Player {
 	double x_position; 
 	double y_position; 

@@ -1,6 +1,5 @@
 #include <emscripten/emscripten.h>
 #include <stdlib.h> 
-#include <assert.h> 
 #include "game.h"
 
 extern "C" {
@@ -202,32 +201,26 @@ extern "C" {
 
 			if (player.x_position + movement > canvas_x - 2) 
 				goto jumping;
-			else {
-				player.x_position += movement; 
+		
+			player.x_position += movement; 
 
-				if (animation_accumulator > 0.125) {
-					player.sprite_position = (x++ % 6) + 7;				
-					animation_accumulator = 0; 
-				}
-
+			if (animation_accumulator > 0.125) {
+				player.sprite_position = (x++ % 6) + 7;				
+				animation_accumulator = 0; 
 			}
-			
- 	
+
 		}
 
 		else if (dir_left == 1) {
 
 			if(player.x_position - movement < 0)
 				goto jumping; // corner case handled  
-			else {
-				player.x_position -= movement;
-				
-				if (animation_accumulator > 0.125) {
-					player.sprite_position = (y++ % 6) + 1;
-					animation_accumulator = 0; 	
-				}
+
+			player.x_position -= movement;
 			
-			
+			if (animation_accumulator > 0.125) {
+				player.sprite_position = (y++ % 6) + 1;
+				animation_accumulator = 0; 	
 			}
 			 
 		}
@@ -291,8 +284,7 @@ jumping:
 	void EMSCRIPTEN_KEEPALIVE update(double time_delta , double sum) {  
 
 		if (resetting == 0) {
-			
-			printf("hello\n");
+		
 			move_player(time_delta);	 
 
 			make_rectangles(time_delta);
