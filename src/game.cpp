@@ -59,6 +59,7 @@ extern "C" {
 			}
 		}
 
+		// why is this here? 
 		for (int i = 0 ; i < 10 ; i++) {
 			if (rectangles[i].colliding == 1) {
 				collision_index = i; 
@@ -69,7 +70,7 @@ extern "C" {
 
 	void EMSCRIPTEN_KEEPALIVE right(int key_event) {
 	
-		if(locked)
+		if(locked || about_flag)
 			return;
 
 		dir_right = key_event; 		
@@ -83,7 +84,7 @@ extern "C" {
 
 	void EMSCRIPTEN_KEEPALIVE left(int key_event) {
 	
-		if (locked)
+		if (locked || about_flag)
 			return;
 
 		dir_left = key_event;
@@ -94,12 +95,12 @@ extern "C" {
 		}
 	}
 	
-	void EMSCRIPTEN_KEEPALIVE jump(int key_event) {
+	void EMSCRIPTEN_KEEPALIVE jump() {
 	
-		if(locked)
+		if(locked || about_flag)
 			return; 	
 
-		dir_jumping = (key_event == 1 && falling != 1) ? 1 : 0; 
+		dir_jumping = (falling != 1) ? 1 : 0; 
 		
 	}
 	
@@ -107,7 +108,15 @@ extern "C" {
 	 * Sets the about me flag to tell the board to clear without restarting 
 	 **/ 
 	void EMSCRIPTEN_KEEPALIVE set_flag() {
-		about_flag = (about_flag == 0) ? 1 : 0;
+		
+		if (about_flag == 0) {
+			about_flag = 1;
+		}
+	 	else {
+			about_flag = 0;
+			reset();
+		}
+		
 	}
 
 	void EMSCRIPTEN_KEEPALIVE resize(int x_param , int y_param , int window) {
@@ -170,7 +179,7 @@ extern "C" {
 					number_rects--;
 				        score++;	
 				}
-				else if (rectangles[i].x_position < 0 && rectangles[i].direction == 1) {
+				else if (rectangles[i].x_position < 0) {
 					rectangles[i].x_position = MAX;
 					number_rects--; 
 					score++;
@@ -280,9 +289,10 @@ jumping:
 	
 	// use double sum and only move player sprite if > a certain value 
 	void EMSCRIPTEN_KEEPALIVE update(double time_delta , double sum) {  
-	
-		if (resetting == 0) {
 
+		if (resetting == 0) {
+			
+			printf("hello\n");
 			move_player(time_delta);	 
 
 			make_rectangles(time_delta);
@@ -295,7 +305,6 @@ jumping:
 
 			if (colliding == -1) { 
 				
-
 				jsDrawImage(player.x_position , player.y_position , player.sprite_position);
 
 				for (int i = 0 ; i < number_rects ; i++)
@@ -304,12 +313,11 @@ jumping:
 		}
 
 		if (colliding >= 0 || resetting == 1 || about_flag == 1) {
-			
 			resetting = 1; 
-
 			reset_board(time_delta);   
 			
 		}
+
 	}
 
 	/**
@@ -332,7 +340,7 @@ jumping:
 
 		for (int i = 0 ; i < data ; i++) {
 			
-			// switch this to a ternary operator 
+			// switch this to a ternary operator, actually i like this better
 			switch (rectangles[i].direction) {
 				
 				case 0: 
@@ -358,11 +366,12 @@ jumping:
 
 			// this is where the -1 gets passed in
 
-			if (about_flag == 0)
-				kill_player(time_delta , collision_index); 
+			if (about_flag == 0) {
+				kill_player(time_delta , collision_index);
 
-			if (number_rects == 0 && about_flag == 0) 
-				reset();
+				if(number_rects == 0)
+					reset();
+			}
 
 		}
 	}
@@ -393,6 +402,7 @@ jumping:
 	        dir_left = 0; 
 		colliding = -1; 
 		rectangles[collision_index].colliding = 0; 
+
 	}
 
 	void kill_player(double time_delta , int rect_lookup) {

@@ -88,7 +88,7 @@
 						break; 
 
 					case "ArrowUp": 
-						_jump(1);
+						_jump();
 						break; 
 				}
 			
@@ -99,24 +99,24 @@
 			window.addEventListener('resize' , () => {resize();});
 
 			var text_pos = canvas.width * .35; 
-			var text_y = 0; 
 			var speed = 150; 
-
+			var text_y = 0; 
 			var previousTime = null;
 			var start = null; 
 			var sum = null; 
-			var about = false; 
+			
+			var about = -1; 
+			var resetting = false; 
 			var hiScore = initHS(); 
 
 			var gameLoop = (timestamp) => {
-				
-				if (!previousTime) { 
+					
+				if (!previousTime) {
 					start = timestamp; 
 					previousTime = timestamp; 
-					loadImages();
-					
-					document.getElementById('about').onclick = function() { if(about == false) _set_flag(); about = true;}
-					document.getElementById('home_click').onclick = function() { if(about == true) _set_flag(); about = false; console.log("hello");}
+					loadImages();				
+					document.getElementById('about').onclick = function() { if(about == -1) _set_flag(); about = 1;}
+					document.getElementById('home_click').onclick = function() {about = -1; resetting = true;}
 					requestAnimationFrame(gameLoop);
 					return; 
 				}
@@ -137,8 +137,8 @@
 			        context.stroke();
 	
 				previousTime = timestamp;
-
-				var score = _get_score(); 
+				
+				var score = _get_score();
 				
 				if (score > hiScore)
 					hiScore = score; 
@@ -148,17 +148,36 @@
 				context.fillText("SCORE: " + score , canvas.width * .01 , canvas.height * .1); 
 				context.fillText("HIGHSCORE: " + hiScore , canvas.width * .01 , canvas.height * .15); 
 
-				if (about == true) {
+				if (about == 1) {
 					context.fillText("Hi! I'm Chris and Welcome to my Site!" , text_pos , text_y);
 
-					text_y += (progress * 200); 
+					text_y += (progress * 200);
+					if (text_y > (canvas.height * .7)) {
+						about = 0; 
+					}
+			
+				}
+				else if (about == 0){
+					context.fillText("Hi! I'm Chris and Welcome to my Site!" , text_pos , text_y);
+				}
 
-					if (text_y > (canvas.height * .7))
-						return; 
+			
+				if (resetting == true) {
+				
+					context.fillText("Hi! I'm Chris and Welcome to my Site!" , text_pos , text_y);
+
+					text_y -= (progress * 200);
+
+					if (text_y < -50) {
+						_set_flag();
+						resetting = false;
+						about = -1;
+					}
 
 				}
-				
+
 				requestAnimationFrame(gameLoop);
+
 			};
 		
 		</script>
