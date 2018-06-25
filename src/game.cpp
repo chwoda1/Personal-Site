@@ -402,7 +402,7 @@ jumping:
 		locked = 1;
 		int deadly_direction = rectangles[rect_lookup].direction;
  		
-		// going left 
+		// going left  @TODO add logic for player direction too 
 		if (deadly_direction == 1) {
 			player.sprite_position = 18;
 			jsDrawImage(player.x_position - 10 , player.y_position - 10, player.sprite_position);
