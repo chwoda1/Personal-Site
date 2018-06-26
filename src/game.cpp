@@ -1,5 +1,6 @@
 #include <emscripten/emscripten.h>
 #include <stdlib.h> 
+#include <time.h>
 #include "game.h"
 
 extern "C" {
@@ -29,8 +30,8 @@ int collision_index;
 long long x = 0; 
 long long y = 0; 
   
-int base_speed = 275; 
-int max_speed = 325;
+int base_speed = 250; 
+int max_speed = 300;
 
 int canvas_x; 
 int canvas_y; 
@@ -115,7 +116,7 @@ extern "C" {
 			about_flag = 0;
 			reset();
 		}
-		
+	
 	}
 
 	void EMSCRIPTEN_KEEPALIVE resize(int x_param , int y_param , int window) {
@@ -124,6 +125,9 @@ extern "C" {
 		canvas_y = y_param; 
 		lose_counter = canvas_y; 
 		window_height = window; 
+
+		max_speed = get_ratio(max_speed);
+		base_speed = get_ratio(base_speed);
 
 		ceiling = canvas_y / 2;
 
@@ -138,8 +142,8 @@ extern "C" {
 		}
 	}
 
-	void make_rectangles(double time_delta) {	
- 
+	void make_rectangles(double time_delta) {
+
 		time_sum += time_delta; 
 
 		if (time_sum > spawn_rate) {
@@ -152,9 +156,9 @@ extern "C" {
 				if (spawn_rate > 1)
 					spawn_rate -= .25; 
 			}
-			
 
-			int velocity = rand() % max_speed + base_speed; 
+			srand(time(NULL));
+			int velocity = rand() % max_speed + base_speed;
 			int height = rand() % ((canvas_y/2) - 200) + 90; 
 			int x_position = 0; 
 			int direction = 0; 
@@ -195,6 +199,9 @@ extern "C" {
 		double movement = time_delta * SPEED; 
 		double fall_speed = time_delta * FALLING_SPEED;
 		
+		base_speed = get_ratio(base_speed);
+		max_speed = get_ratio(max_speed);
+
 		animation_accumulator += time_delta; 
 
 		if (dir_right == 1) {
@@ -247,7 +254,7 @@ jumping:
 
 		else if (falling == 1) {
 			
-			if (player.y_position - movement < original_y) {
+			if (player.y_position - movement < original_y) { 
 			
 				player.y_position += fall_speed + (GRAV * time_delta); 			
 				player.sprite_position = (dir_right == 1) ? 14 : 13;
@@ -265,7 +272,7 @@ jumping:
 	
 		for (int i = 0 ; i < number_rects ; i++) {
 	
-			double movement = time_delta * rectangles[i].velocity; 
+			double movement = (time_delta * rectangles[i].velocity); 
 	 
 			switch (rectangles[i].direction) {
 
@@ -320,7 +327,6 @@ jumping:
 	 *
 	 * However, you can also pass in a -1 value. This will have a special use which will clear the board in a pretty way
 	 * and keep it cleared so you can draw other stuff.
-	 *
 	 *
 	 * @TODO remove that about_flag at some point. There has to be a better way 
 	 *
@@ -381,8 +387,8 @@ jumping:
 	}
 
 	void reset() { 
-		base_speed = 275; 
-		max_speed = 325;
+		base_speed = get_ratio(250); 
+		max_speed = get_ratio(300);
 		locked = 0;
 		number_rects = 0; 
 		score = 0; 
@@ -425,6 +431,10 @@ jumping:
 		}
 
 		return 0;
+	}
+
+	int get_ratio(int size) {
+		return  (canvas_x / size) * 100; 
 	}
 
 	int main() { printf("WebAssembly ready and loaded\n"); }

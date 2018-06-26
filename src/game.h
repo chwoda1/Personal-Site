@@ -1,8 +1,8 @@
-const int SPEED = 750; 
-const int FALLING_SPEED = 800; 
-const int MAX = 0xFFFFF; 
-const int RECT_WIDTH = 30;
-const int RESET_RECT = 600;
+int SPEED = 750; 
+int FALLING_SPEED = 800; 
+int MAX = 0xFFFFF; 
+int RECT_WIDTH = 30;
+int RESET_RECT = 600;
 const float GRAV = 0.8f;
 
 typedef struct Player {
@@ -42,3 +42,4 @@ extern "C" void make_rectangles(double time_delta);
 extern "C" void move_rectangles(double time_delta); 
 extern "C" void move_player(double movement); 
 extern "C" void reset_board(double time_delta); 
+extern "C" int get_ratio(int size); 
