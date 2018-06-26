@@ -129,7 +129,7 @@ extern "C" {
 		max_speed = get_ratio(max_speed);
 		base_speed = get_ratio(base_speed);
 		SPEED = get_ratio(SPEED);
-		FALLING_SPEED = get_ratio(FALLING_SPEED);
+		FALLING_SPEED = get_ratio(FALLING_SPEED); // @TODO you need to base this on Y AXIS NOT X IDIOT 
 		ceiling = canvas_y / 2;
 
 		if (!flag) {
