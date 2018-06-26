@@ -1,5 +1,5 @@
-int SPEED = 750; 
-int FALLING_SPEED = 800; 
+int SPEED = 130; 
+int FALLING_SPEED = 100; 
 int MAX = 0xFFFFF; 
 int RECT_WIDTH = 30;
 int RESET_RECT = 600;

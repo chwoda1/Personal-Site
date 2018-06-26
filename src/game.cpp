@@ -128,7 +128,8 @@ extern "C" {
 
 		max_speed = get_ratio(max_speed);
 		base_speed = get_ratio(base_speed);
-
+		SPEED = get_ratio(SPEED);
+		FALLING_SPEED = get_ratio(FALLING_SPEED);
 		ceiling = canvas_y / 2;
 
 		if (!flag) {
@@ -199,9 +200,6 @@ extern "C" {
 		double movement = time_delta * SPEED; 
 		double fall_speed = time_delta * FALLING_SPEED;
 		
-		base_speed = get_ratio(base_speed);
-		max_speed = get_ratio(max_speed);
-
 		animation_accumulator += time_delta; 
 
 		if (dir_right == 1) {
@@ -434,7 +432,7 @@ jumping:
 	}
 
 	int get_ratio(int size) {
-		return  (canvas_x / size) * 100; 
+		return  (canvas_x / size) * 90; 
 	}
 
 	int main() { printf("WebAssembly ready and loaded\n"); }
