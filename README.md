@@ -8,3 +8,4 @@ Must have the Emscripten compiler suite installed to run.
 
 ## TODO 
 	Fix error with time delta being passed in and shifting shit 10billion miles off board 
+	Move everything from inline styling to CSS sheets
