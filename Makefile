@@ -12,7 +12,7 @@ deploy:
 	cp main.html ~/Desktop/Release-Site
 	cp main.js ~/Desktop/Release-Site
 	cp main.wasm ~/Desktop/Release-Site
-	cp -r static ~/Desktop/Release-Site
+	cp -r static ~/Desktop/Release-Site/
 	cp other.js ~/Desktop/Release-Site
 	mv ~/Desktop/Release-Site/main.html ~/Desktop/Release-Site/index.html
 

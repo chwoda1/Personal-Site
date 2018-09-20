@@ -59,7 +59,6 @@ extern "C" {
 			}
 		}
 
-		// why is this here? 
 		for (int i = 0 ; i < 10 ; i++) {
 			if (rectangles[i].colliding == 1) {
 				collision_index = i; 
@@ -111,8 +110,7 @@ extern "C" {
 		
 		if (about_flag == 0) {
 			about_flag = 1;
-		}
-	 	else {
+		} else {
 			about_flag = 0;
 			reset();
 		}
@@ -123,13 +121,11 @@ extern "C" {
 
 		canvas_x = x_param; 
 		canvas_y = y_param; 
-		lose_counter = canvas_y; 
 		window_height = window; 
 
 		max_speed = get_ratio(max_speed);
 		base_speed = get_ratio(base_speed);
 		SPEED = get_ratio(SPEED);
-		FALLING_SPEED = get_ratio(FALLING_SPEED); // @TODO you need to base this on Y AXIS NOT X IDIOT 
 		ceiling = canvas_y / 2;
 
 		if (!flag) {
@@ -160,7 +156,10 @@ extern "C" {
 
 			srand(time(NULL));
 			int velocity = rand() % max_speed + base_speed;
-			int height = rand() % ((canvas_y/2) - 200) + 90; 
+			
+			int height_cap = (int) (canvas_y * .15) + (int) (canvas_y * .05);
+			int height = rand() % height_cap;
+
 			int x_position = 0; 
 			int direction = 0; 
 
@@ -198,7 +197,7 @@ extern "C" {
 	void move_player(double time_delta) {
 	
 		double movement = time_delta * SPEED; 
-		double fall_speed = time_delta * FALLING_SPEED;
+		double fall_speed = time_delta * (FALLING_SPEED / (canvas_y * .01));
 		
 		animation_accumulator += time_delta; 
 
@@ -331,12 +330,11 @@ jumping:
 	 **/ 
 	void EMSCRIPTEN_KEEPALIVE reset_board(double time_delta) {
 		
-		double movement = time_delta * RESET_RECT; 
+		double movement = time_delta * get_ratio(RESET_RECT);
 		int data = number_rects;
 
 		for (int i = 0 ; i < data ; i++) {
 			
-			// switch this to a ternary operator, actually i like this better
 			switch (rectangles[i].direction) {
 				
 				case 0: 
@@ -365,8 +363,7 @@ jumping:
 			if (about_flag == 0) {
 				kill_player(time_delta , collision_index);
 
-				if(number_rects == 0)
-					reset();
+				if(number_rects == 0) reset();
 			}
 
 		}
@@ -384,13 +381,15 @@ jumping:
 		return -1;
 	}
 
+	/**
+	 * Used to reset game state
+	 **/
 	void reset() { 
 		base_speed = get_ratio(250); 
 		max_speed = get_ratio(300);
 		locked = 0;
 		number_rects = 0; 
 		score = 0; 
-		lose_counter = canvas_y;
 		resetting = 0;
 		player = (Player) {canvas_x / 2 , original_y , 0}; 
 		dir_jumping = 0; 
@@ -419,6 +418,10 @@ jumping:
 
 	}
 
+	/**
+	 * TODO:
+	 * 	- Switch to a pointer... pass by value wastes stack space
+	 **/
 	int intersects(Rectangle rect) {  
 
 		if (rect.x_position < (player.x_position + 20) && rect.x_position + RECT_WIDTH > player.x_position &&
@@ -432,7 +435,11 @@ jumping:
 	}
 
 	int get_ratio(int size) {
-		return  (canvas_x / size) * 90; 
+		return size / (canvas_y * .01);
+	}
+
+	int get_rect_ratio(int size) {
+		return (canvas_y / size) * 20 + (canvas_y * .05);
 	}
 
 	int main() { printf("WebAssembly ready and loaded\n"); }
