@@ -1,34 +1,33 @@
-
 body {
-
 	background:#FAFAF6;
 	padding:0; 
 	margin:0; 
 }
 
 #header_bar {
-
+	z-index: 2;
 	position:absolute;
 	top: 0%;  
-	width:100%;
-
+	width: 100%;
 }
 
 #header_bar a {
 	color: #000000;
 	text-decoration: none; 
 }
-#header_bar img {
 
+#header_bar img {
 	display:block; 
 	margin: auto; 
-
 }
 
 #title {
-
 	display:inline-block;  
 	font-family: "Oswald" , sans-serif;
+}
+
+#title hr {
+	width: 80%;
 }
 
 #personal h4 {
@@ -38,11 +37,11 @@ body {
 	margin-top:-5%;
 	font-family: "Oswald" , sans-serif;
 	text-decoration:underline; 
+	color: #000000;
 
 }
 
 #high_scores {
-
 	position:absolute;
 	top:2%;
 	left:2%;
@@ -50,11 +49,21 @@ body {
 	text-decoration:underline;
 }
 
+#wasm {
+	padding: 1% 1% 0% 0%;
+}
+
+#linkedin {
+	width: 98%;
+	position: relative;
+	float: right;
+	padding: 1% 0% 0% 0%;
+	z-index: 5;
+}
+
 canvas {
-	
 	position:absolute; 
-	bottom:3%;
-	 
+	bottom:3%; 
 }
 
 

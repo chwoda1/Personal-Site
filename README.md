@@ -7,5 +7,4 @@ Must have the Emscripten compiler suite installed to run.
 	* Run the Makefile to compile and open the html target 
 
 ## TODO 
-	Fix error with time delta being passed in and shifting shit 10billion miles off board 
-	Move everything from inline styling to CSS sheets
+	Implement realistic gravity... Right now just has a hard ceiling

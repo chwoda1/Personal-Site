@@ -31,24 +31,19 @@
 
 		<canvas id='game_canvas' align='center'>Canvas is not supported</canvas>
 
-		<div id="wasm" align='right' style='padding: 1% 1% 0% 0%;'>
+		<div id="wasm" align='right'>
 			<img src='static/WASM_Logo.png' height='3%' width='3%'>
-		</div>
-
-		<div id='linkedin' align='right' style='padding: 1% 1% 0% 0%;'>
-			<a href='https://www.linkedin.com/in/chris-wood-a2318395/'><img src='static/linkedin.png' height='3%' width='3%'></a>
 		</div>
 
 		<div id='header_bar' align='center'>
 			
 			<div id="home_click">
-				<img src='static/photo.jpg' border='5' height='15%' width='15%'>
+				<img id="home" src='static/photo.jpg' border='5' height='15%' width='15%'>
 				
 				<div id='title' align='center'>
 
 					<h2>Chris Wood</h2>
-
-					<hr style="width=25%;">
+					<hr>
 					
 				</div>
 			</div>
@@ -56,11 +51,15 @@
 			<div id='personal' align='center'>
 
 				<h4 id="about">About Me</h4>
-				<h4> <a href='static/resume.pdf' style='color:#000000;'>Resume</a>  </h4>
-				<h4> <a href='https://github.com/crw5996' style='color:#000000;'>Projects</a> </h4>
+				<h4> <a href='static/resume.pdf'>Resume</a>  </h4>
+				<h4> <a href='https://github.com/crw5996'>Projects</a> </h4>
 
 			</div> 
 
+		</div>
+
+		<div id='linkedin' align='right'>
+			<img id='linkedin_icon' src='static/linkedin.png' height='3%' width='3%'/>
 		</div>
 
 		<script>
@@ -119,7 +118,8 @@
 					previousTime = timestamp; 
 					loadImages();				
 					document.getElementById('about').onclick = function() { if(about == -1) _set_flag(); about = 1;}
-					document.getElementById('home_click').onclick = function() {about = -1; resetting = true;}
+					document.getElementById('home').onclick = function() {about = -1; resetting = true;}
+					document.getElementById('linkedin_icon').onclick = function() {location.href = "https://www.linkedin.com/in/chris-wood-a2318395/";console.log("hi");}
 					requestAnimationFrame(gameLoop);
 					return; 
 				}
