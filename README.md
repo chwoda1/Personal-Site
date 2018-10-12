@@ -8,3 +8,4 @@ Must have the Emscripten compiler suite installed to run.
 
 ## TODO 
 	Implement realistic gravity... Right now just has a hard ceiling
+	Not scaling on 4k monitor... investigate
